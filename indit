@@ -1,0 +1,9 @@
+ansible-playbook --ask-become-pass i.yml
+absent az visszavonja a változtatást
+git pull // a változásokat és új fájlokat letölti
+git status // állapot hogy van e olyan ami nincs feltöltve
+git diff fájl név //változás kiirása
+git add fájlnév //hozzáadás a feltöltéshez
+git commit -m " comment"
+git push origin main //feltöltés gitre
+ansible all -m gather_facts --limit szerver ipcime // ezzel meglehet állapitani a linux típust
