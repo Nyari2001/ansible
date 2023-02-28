@@ -1,0 +1,49 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: update repository index
+   apt:
+     update_cache: yes
+   when: ansible-distribution in ["Debian", "Ubuntu"]
+
+  - name: install apache2 package
+    package:
+      name:
+        - "{{apache_package}}"
+        - "{{php}}"
+      state: latest
+      update_cache: yes
+    when: ansible-distribution == "Ubuntu"
+
+
+- hosts: webserver
+  become: true
+  tasks:
+
+  - name: install apache on centos
+    dnf:
+      name: httpd
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+- hosts: fileserver
+  become: true
+  tasks:
+
+  - name: install samba
+    tags: samba
+    package:
+      name: samba
+      state: latest
+    when: ansible_distribution == "CentOS"
