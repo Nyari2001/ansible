@@ -7,3 +7,4 @@ git add fájlnév //hozzáadás a feltöltéshez
 git commit -m " comment"
 git push origin main //feltöltés gitre
 ansible all -m gather_facts --limit szerver ipcime // ezzel meglehet állapitani a linux típust
+ansible-playbook --tags "samba,db" --ask-become-pass site.yml
