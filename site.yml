@@ -9,7 +9,26 @@
     dnf:
       update_only: yes
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "CentOS"
+
+- hosts: workstations
+  become: true
+  taks:
+
+  - name: install unzip
+    package:
+      name: unzip
+
+  - name: install terraform
+    unarchive:
+      src: https://somthing.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
+      owner: root
+      group: root
+
 
   - name: update repository index
    apt:
@@ -45,6 +64,30 @@
       update_cache: yes
     when: ansible_distribution == "CentOS"
 
+  - name: start httpd
+    tags: httpd, apache
+    service:
+       name: http
+       state: stated
+       enabled: yes
+    when: ansible_distribution == "CentOS"
+
+   - name: change e-mail address for admin
+     tags: change
+     lineinfile:
+         path: cnfig.conf
+         regexp: '^Serveradmin'
+         line: something that we want s the line where the line start SA
+     when: ansible_distribution == "CentOS"
+     register: httpd
+
+   - name: restart httpd
+     tags: httpd
+     service:
+       name: httpd
+       state: restarted
+     when: httpd.changed
+
 - hosts: fileserver
   become: true
   tasks:
@@ -55,3 +98,29 @@
       name: samba
       state: latest
     when: ansible_distribution == "CentOS"
+
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: create simone user
+    tags: always
+    user:
+      name: simone
+      groups: root
+
+   - name: add ssh key for simone
+    tags: always
+    authorized_key:
+        user: simone
+        key: ""
+
+   - name: add sudoers file for simone
+     copy:
+       src: sudoers_simone
+       dest: /etc/sudoers.d/simone
+       owner: root
+       group: root
+       mode: 0440
+
