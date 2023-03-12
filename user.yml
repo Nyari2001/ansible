@@ -1,0 +1,19 @@
+---
+- name: Create Users
+  hosts: your_host_name_here
+  become: yes
+
+  vars:
+    # Define the number of users to create
+    num_users: 10
+
+  tasks:
+    # Create users with the hostname prefix and a sequential number
+    - name: Create Users
+      user:
+        name: "{{ inventory_hostname }}{{ '%02d' | format(item) }}"
+        password: "{{ 'mypassword' | password_hash('sha512') }}"
+        home: "/home/customhome/{{ inventory_hostname }}{{ '%02d' | format(item) }}"
+        createhome: yes
+      with_sequence: start=1 end={{ num_users }}
+

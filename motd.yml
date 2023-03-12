@@ -1,0 +1,20 @@
+---
+- name: Update /etc/motd
+  hosts: your_host_name_here
+  become: yes
+
+  vars:
+    # Define the new contents for the motd file
+    motd_contents: |
+      Welcome to my server!
+      This server is managed by Ansible.
+
+  tasks:
+    # Update the motd file
+    - name: Update motd file
+      lineinfile:
+        path: /etc/motd
+        line: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ motd_contents.split('\n') }}"

@@ -1,0 +1,45 @@
+---
+- name: Create Mirrored LVM
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    # Define the volume group name
+    vg_name: vg_mirror
+
+  tasks:
+    # Create physical volumes
+    - name: Create Physical Volumes
+      become: yes
+      parted:
+        device: "{{ item }}"
+        number: 1
+        state: present
+        label: gpt
+        name: "{{ vg_name }}"
+        unit: MiB
+        part_end: 100%
+      with_items:
+        - /dev/sda
+        - /dev/sdb
+        - /dev/sdc
+        - /dev/ssd
+
+    # Create the volume group
+    - name: Create Volume Group
+      become: yes
+      lvg:
+        vg: "{{ vg_name }}"
+        pvs: "{{ ['/dev/sda1', '/dev/sdb1', '/dev/sdc1', '/dev/ssd1'] }}"
+        state: present
+
+    # Create the logical volume
+    - name: Create Logical Volume
+      become: yes
+      lvol:
+        vg: "{{ vg_name }}"
+        lv: lv_mirror
+        size: 100%FREE
+        stripes: 2
+        stripe_size: 64
+        state: present

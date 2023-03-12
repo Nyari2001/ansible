@@ -1,0 +1,33 @@
+---
+- name: Mount Filesystem by UUID and Add to fstab
+  hosts: all
+  become: yes
+
+  vars:
+    # Define the UUID of the filesystem to mount
+    fs_uuid: "123e4567-e89b-12d3-a456-426655440000"
+    # Define the mount point directory
+    mount_point: /mnt/myfilesystem
+
+  tasks:
+    # Create the mount point directory
+    - name: Create Mount Point
+      file:
+        path: "{{ mount_point }}"
+        state: directory
+
+    # Mount the filesystem by UUID
+    - name: Mount Filesystem
+      mount:
+        src: "UUID={{ fs_uuid }}"
+        path: "{{ mount_point }}"
+        state: mounted
+        fstype: ext4
+        opts: defaults
+
+    # Add the filesystem to /etc/fstab by UUID
+    - name: Add Filesystem to fstab
+      lineinfile:
+        path: /etc/fstab
+        line: "UUID={{ fs_uuid }} {{ mount_point }} ext4 defaults 0 0"
+        state: present
